@@ -15,6 +15,7 @@
                                 <span class="font-weight-bold"><i class="fa fa-chart-bar"></i> SALES CHART 7 DAYS</span>
                             </div>
                             <div class="card-body">
+                                <BarChart :chartData="chartSellWeek" :options="options" />
                             </div>
                         </div>
                     </div>
@@ -50,7 +51,7 @@
                                 <span class="font-weight-bold"><i class="fa fa-chart-pie"></i> BEST SELIING PRODUCT</span>
                             </div>
                             <div class="card-body">
-
+                                <DoughnutChart :chartData="chartBestProduct" />
                             </div>
                         </div>
                     </div>
@@ -77,6 +78,16 @@
     //import Heade and useForm from Inertia
     import { Head } from '@inertiajs/inertia-vue3';
 
+    //import ref from vue
+    import { ref } from 'vue';
+
+    //chart
+    import { BarChart, DoughnutChart } from 'vue-chart-3';
+    import { Chart, registerables } from "chart.js";
+
+    //register chart
+    Chart.register(...registerables);
+
     export default {
 
         //layout
@@ -85,6 +96,8 @@
         //register component
         components: {
             Head,
+            BarChart,
+            DoughnutChart
         },
 
         props: {
@@ -96,6 +109,75 @@
 
             //jumlah profit/laba hari ini
             sum_profits_today: Number,
+
+            //chart sales
+            sales_date: Array,
+            grand_total: Array,
+
+            //produk terlaris
+            product: Array,
+            total: Array,
+        },
+
+        setup(props) {
+
+            //method random color
+            function randomBackgroundColor(length) {
+                var data = [];
+                for (var i = 0; i < length; i++) {
+                    data.push(getRandomColor());
+                }
+                return data;
+            }
+
+            //method generate random color
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF'.split('');
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+
+            //option chart
+            const options = ref({
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    title: {
+                        display: false,
+                    },
+                },
+                beginZero: true
+            });
+
+            //chart sell week
+            const chartSellWeek = {
+                labels: props.sales_date,
+                datasets: [{
+                    data: props.grand_total,
+                    backgroundColor: randomBackgroundColor(props.sales_date.length),
+                }, ],
+            };
+
+            //chart produk terlaris
+            const chartBestProduct = {
+                labels: props.product,
+                datasets: [{
+                    data: props.total,
+                    backgroundColor: randomBackgroundColor(5),
+                }, ],
+            };
+
+            return {
+                options,
+                chartSellWeek,
+                chartBestProduct
+            }
+
         }
     }
 </script>
